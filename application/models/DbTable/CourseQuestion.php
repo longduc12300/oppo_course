@@ -36,8 +36,8 @@ class Application_Model_DbTable_CourseQuestion extends Zend_Db_Table_Abstract
     public function getQuestionIdsByCourseId($course_id)
     {
         $select = $this->select()
-        ->from($this->_name, 'id')
-        ->where('course_id = ?', $course_id); 
+            ->from($this->_name, array('id'))
+            ->where('course_id = ?', $course_id);
 
         $result = $this->fetchAll($select);
         $questionIds = array();
@@ -57,8 +57,6 @@ class Application_Model_DbTable_CourseQuestion extends Zend_Db_Table_Abstract
         $where = $this->getAdapter()->quoteInto('id = ?', $id);
         return $this->delete($where);
     }
-
-
     public function getIdsByCourseId($courseId)
     {
         $select = $this->select()

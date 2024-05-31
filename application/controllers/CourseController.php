@@ -358,11 +358,11 @@ class CourseController extends Zend_Controller_Action
 
     public function getStaffInformationAction()
     {
-        $code       = $this->getRequest()->getParam('code', '');
-        $name       = $this->getRequest()->getParam('name', '');
+        $code = $this->getRequest()->getParam('code', '');
+        $name = $this->getRequest()->getParam('name', '');
         $department = $this->getRequest()->getParam('department', '');
-        $team       = $this->getRequest()->getParam('team', '');
-        $title      = $this->getRequest()->getParam('title', '');
+        $team = $this->getRequest()->getParam('team', '');
+        $title = $this->getRequest()->getParam('title', '');
 
 
         $Courses = new Application_Model_DbTable_Courses();
@@ -428,19 +428,18 @@ class CourseController extends Zend_Controller_Action
     // }
 
 
- 
-    public function listQuestionsAction() {
-        $courseId = $this->getRequest()->getParam('course_id');
+    public function answerAction() {
+        $questionId = $this->getRequest()->getParam('question_id');
         
-        if (!$courseId) {
-            // Xử lý lỗi hoặc chuyển hướng nếu không có course_id
+        if (!$questionId) {
             return $this->_redirect('/course');
         }
-        $questionsModel = new Application_Model_DbTable_CourseQuestion();
+        $courseAnswers = new Application_Model_DbTable_Answers();
+
         // Giả sử bạn có một model để lấy câu hỏi từ cơ sở dữ liệu
-        $questions = $this->$questionsModel->getQuestionsByCourseId($courseId);
+        $answers = $this->$courseAnswers->getQuestionsByQuestionId($questionId);
     
         // Gửi dữ liệu tới view
-        $this->view->questions = $questions;
+        $this->view->answers = $answers;
     }
 }
