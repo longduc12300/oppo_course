@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Câu Hỏi Cho Khóa Học</title>
+    <style>
+        .question-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .question-index {
+            font-weight: bold;
+        }
+
+        .form-actions {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .form-actions .btn {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Thêm Câu Hỏi Cho Khóa Học</h1> <a href="/course/question/list-questions" class="btn btn-success">Danh sách trả lời trắc nghiệm</a>
+        <p></p>
+        <form action="/course/question-save" method="post" target="my_iframe" id="questionForm"
+            enctype="multipart/form-data">
+            <div id="questionsContainer">
+                <?php if (!empty($this->questionsAndAnswers)): ?>
+                    <?php foreach ($this->questionsAndAnswers as $questionId => $questionData): ?>
+                        <div class="question-group mt-4">
+                            <label class="question-index">1</label>
+                            <div class="form-group">
+                                <label for="questionText">Nhập câu hỏi ở đây</label>
+                                <input type="text" class="form-control" id="questionText" name="question[]" required
+                                    value="<?php echo $questionData['question']; ?>">
+                            </div>
+                            <div class="answers-group">
+                                <label>Nhập các câu trả lời:</label>
+                                <?php foreach ($questionData['data'] as $answerIndex => $answer): ?>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="answer[][]"
+                                            value="<?php echo $answer['answer_text']; ?>" required>
+                                        <label>
+                                            <input type="radio" name="correct[]" value="<?php echo $answerIndex; ?>" <?php if ($answer['is_correct'] == 1)
+                                                   echo 'checked="checked"'; ?> required> Đúng
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="btn btn-danger remove-question">-</button>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="question-group">
+                        <label class="question-index">1</label>
+                        <label for="questionText">Nhập câu hỏi ở đây</label>
+                        <input type="text" class="form-control" id="questionText" name="question[]" required>
+                        <div class="answers-group">
+                            <label>Nhập các câu trả lời:</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="answer[0][]" required>
+                                <label><input type="radio" name="correct[0]" value="0" required> Đúng</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="answer[0][]" required>
+                                <label><input type="radio" name="correct[0]" value="1"> Đúng</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="answer[0][]" required>
+                                <label><input type="radio" name="correct[0]" value="2"> Đúng</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="answer[0][]" required>
+                                <label><input type="radio" name="correct[0]" value="3"> Đúng</label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger remove-question">-</button>
+                    </div>
+
+                </div>
+            <?php endif; ?>
+    </div>
+    <div class="container">
+        <button type="button" class="btn btn-primary" id="addQuestion">+</button>
+        <button type="submit" class="btn btn-primary" name="btnADD" id="btnADD" value="ADD";this.form.submit();>Submit</button>
+        <iframe name="my_iframe" id="iframe" style="width: 100%; height: 2000px; display: none;"></iframe>
+    </div>
+
+
+    <input type="hidden" id="id" name="id" value="<?php echo $this->courses['id']; ?>">
+
+
+    </form>
+    </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let questionIndex = 1;
+
+            function updateQuestionIndexes() {
+                $('.question-group').each(function (index) {
+                    $(this).find('.question-index').text('#' + (index + 1));
+                    $(this).find('label[for^="questionText"]').attr('for', `questionText${index}`);
+                    $(this).find('input[id^="questionText"]').attr('id', `questionText${index}`);
+                    $(this).find('input[name^="question"]').attr('name', `question[${index}]`);
+                    $(this).find('.answers-group .form-group').each(function (answerIndex) {
+                        $(this).find('input[type="text"]').attr('name', `answer[${index}][]`);
+                        $(this).find('input[type="radio"]').attr('name', `correct[${index}]`);
+                    });
+                });
+                questionIndex = $('.question-group').length;
+            }
+
+            $('#addQuestion').click(function () {
+                const questionGroup = `
+            <div class="question-group border p-3 mb-3">
+                <label class="question-index">#${questionIndex + 1}</label>
+                <div class="form-group">
+                    <label for="questionText${questionIndex}">Nhập câu hỏi ở đây</label>
+                    <input type="text" class="form-control" id="questionText${questionIndex}" name="question[${questionIndex}]"
+                </div>
+                <div class="answers-group">
+                    <label>Nhập các câu trả lời:</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="answer[${questionIndex}][]" required>
+                        <label><input type="radio" name="correct[${questionIndex}]" value="0" required> Đúng</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="answer[${questionIndex}][]" required>
+                        <label><input type="radio" name="correct[${questionIndex}]" value="1"> Đúng</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="answer[${questionIndex}][]" required>
+                        <label><input type="radio" name="correct[${questionIndex}]" value="2"> Đúng</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="answer[${questionIndex}][]" required>
+                        <label><input type="radio" name="correct[${questionIndex}]" value="3"> Đúng</label>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger remove-question">-</button>
+            </div>`;
+                $('#questionsContainer').append(questionGroup);
+                questionIndex++;
+                updateQuestionIndexes();
+            });
+
+            $(document).on('click', '.remove-question', function () {
+                if ($('.question-group').length > 1) {
+                    $(this).closest('.question-group').remove();
+                    updateQuestionIndexes();
+                } else {
+                    alert('Phải có ít nhất một câu hỏi.');
+                }
+            });
+
+            updateQuestionIndexes();
+        });
+    </script>
+
+</body>
+
+</html>

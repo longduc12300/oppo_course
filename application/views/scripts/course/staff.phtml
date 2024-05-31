@@ -1,0 +1,181 @@
+<div class="container">
+    <!-- Accordion for the Search Form -->
+    <div class="accordion" id="searchAccordion">
+        <div class="card">
+            <div class="card-header" id="searchHeading">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#searchCollapse"
+                        aria-expanded="true" aria-controls="searchCollapse">
+                        Search
+                    </button>
+                </h2>
+            </div>
+            <div id="searchCollapse" class="collapse show" aria-labelledby="searchHeading"
+                data-parent="#searchAccordion">
+                <div class="card-body">
+                    <form action="" method="get">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Enter Name" name="name"
+                                value="<?php echo $this->escape($this->name); ?>">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Enter Code" name="code"
+                                value="<?php echo $this->escape($this->code); ?>">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="departmentSelect" name="department">
+                                <option value="">Select Department</option>
+                                <?php foreach ($this->team as $team): ?>
+                                    <option value="<?php echo $this->escape($team['id']); ?>"
+                                    <?php if (isset($this->params) && $this->params['department'] && $this->params['department'] == $this->escape($team['id'])) { ?>selected<?php } ?>>
+                                        <?php echo $this->escape($team['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="teamSelect" name="team">
+                                <option value="">Select Team</option>
+                                <?php if (isset($this->data_team) && isset($this->data_team)) { ?>
+                                <?php foreach ($this->data_team as $data_team): ?>
+                                    <option value="<?php echo $this->escape($data_team['id']); ?>"
+                                    <?php if (isset($this->params) && $this->params['team'] && $this->params['team'] == $this->escape($data_team['id'])) { ?>selected<?php } ?>>
+                                        <?php echo $this->escape($data_team['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                <?php } ?>
+                                <!-- isset($this->data_team) -->
+                                <!-- foreach($this->data_team) -->
+                                <!-- so sánh điều kiện params['team'] để selected -->
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="titleSelect" name="title">
+                                <option value="">Select Title</option>
+                                <?php foreach ($this->data_title as $data_title): ?>
+                                <option value="<?php echo $this->escape($data_title['id']); ?>"
+                                    <?php if (isset($this->params) && $this->params['title'] && $this->params['title'] == $this->escape($data_title['id'])) { ?>selected<?php } ?>>
+                                        <?php echo $this->escape($data_title['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" id="searchButton" class="btn btn-primary">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff List Form -->
+    <form action="/course/staff-save" method="post" target="my_iframe" enctype="multipart/form-data">
+        <h1>Staff List</h1>
+        <button type="submit" class="btn btn-primary" name="btnADD" id="btnADD" value="ADD"
+            onclick="this.disabled=true;this.value='Sending, please wait...';this.form.submit();">Submit</button>
+        <iframe name="my_iframe" id="iframe" style="width: 100%; height: 50px; display: none;"></iframe>
+        <input type="hidden" id="id" name="id" value="<?php echo $this->escape($this->courses['id']); ?>">
+
+        <!-- Staff Table -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Team</th>
+                    <th>Title</th>
+                    <th>Gender</th>
+                    <th>Area</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($this->data)): ?>
+                    <?php foreach ($this->data as $key => $value): ?>
+                        <tr>
+                            <td><?php echo $key + 1; ?></td>
+                            <td><?php echo $this->escape($value['code']); ?></td>
+                            <td><?php echo $this->escape($value['staff_name']); ?></td>
+                            <td><?php echo $this->escape($value['department']); ?></td>
+                            <td><?php echo $this->escape($value['team']); ?></td>
+                            <td><?php echo $this->escape($value['title']); ?></td>
+                            <td><?php echo $this->escape($value['gender']); ?></td>
+                            <td><?php echo $this->escape($value['Area']); ?></td>
+                            <td><input type="checkbox" name="staff_ids[]"
+                                    value="<?php echo $this->escape($value['staff_id']); ?>"></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="9">No staff found.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </form>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>                                 
+<script>
+    $(document).ready(function () {
+        $('#departmentSelect').on('change', function () {
+            var department_id = $(this).val();
+            $.ajax({
+
+                /*
+                <form method="get" action="/course/fetch-teams">
+                    <input type="hidden" value="department_id" name="department_id" />
+                </form>
+                */
+
+                url: "/course/fetch-teams",
+                type: "get", //send it through get method
+                data: { 
+                    department_id: department_id,
+                },
+                success: function(response) {
+                    // console.log(response);
+                    //Do Something
+                    $("#teamSelect").empty();
+                    $("#teamSelect").append("<option value=''>select team</option>");
+                    var data = jQuery.parseJSON(response);
+                    data.forEach(item => {
+                        const option = $('<option>').val(item.id).text(item.name);
+                        $("#teamSelect").append(option);
+                    });
+                },
+                error: function(xhr) {
+                    //Do Something to handle error
+                }
+            });
+            
+        });
+        $('#teamSelect').on('change', function () {
+            var title_id = $(this).val();
+            // console.log(title_id);
+            $.ajax({
+                url: "/course/fetch-titles",
+                type: "GET",
+                data: { 
+                    title_id: title_id,
+                },
+                success: function(response) {
+                    // Parse the JSON response and populate the title dropdown
+                    $("#titleSelect").empty();
+                    $("#titleSelect").append("<option value=''>select title</option>");
+                    var data = jQuery.parseJSON(response);
+                    data.forEach(item => {
+                        const option = $('<option>').val(item.id).text(item.name);
+                        $("#titleSelect").append(option);
+                    });
+                },
+                error: function(xhr) {
+                    // Handle error
+                }
+            });
+        });
+        
+        });
+        
+</script>

@@ -1,0 +1,52 @@
+<div class="container">
+  <h1>Tạo khóa học mới</h1>
+  <form action="/course/save" method="post" target="my_iframe" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="name">Tên Khóa học:</label>
+      <input type="name" class="form-control" autocomplete="off" id="name" placeholder="Enter name" name="name" 
+      value="<?php echo isset($this->courses['name']) && $this->courses['name'] ? $this->courses['name'] : NULL; ?>">
+    </div>
+    <p>Thông tin khóa học</p>
+    <textarea name="editor1" id="content"><?php echo isset($this->courses['content']) && $this->courses['content'] ? $this->courses['content'] : NULL; ?></textarea>
+
+    <div class="form-group">
+      <label for="timestart">Thời gian bắt đầu:</label>
+      <input type="date" class="form-control" id="timestart" placeholder="timestart" name="timestart"
+      value="<?php echo isset($this->courses['start_date']) && $this->courses['start_date'] ? $this->courses['start_date'] : NULL; ?>">
+    </div>
+
+    <div class="form-group">
+      <label for="timeend">Thời gian kết thúc:</label>
+      <input type="date" class="form-control" id="timeend" placeholder="timeend" name="timeend"
+      value="<?php echo isset($this->courses['end_date']) && $this->courses['end_date'] ? $this->courses['end_date'] : NULL; ?>">
+    </div>
+
+    <div class="form-group">
+      <label for="file">File khóa học:</label>
+      <input type="file" class="form-control" id="file" placeholder="chọn file" name="file">
+      <br/>
+      <?php if (isset($this->courses['file']) && $this->courses['file']): ?>
+        <a href="/file/<?php echo $this->courses['file']; ?>" style="color: blue; font-weight: bold;">file hiện tại</a>
+        <button type="button" class="btn btn-danger" id="deleteFile">Xóa File</button>
+      <?php endif; ?>
+    </div>
+
+    <button type="submit" class="btn btn-primary" name="btnADD" id="btnADD" value="ADD" onclick="this.disabled=true;this.value='Sending, please wait...';this.form.submit();">Submit</button>
+    <input type="hidden" id="id" name="id" value="<?php echo $this->courses['id'];?>">
+    <iframe name="my_iframe" id="iframe" style="width: 100%; height: 200px; display: none;"></iframe>
+  </form>
+</div>
+
+<script src="https://cdn.ckeditor.com/4.13.0/standard/ckeditor.js"></script>
+
+<script>   
+ CKEDITOR.replace('editor1');
+</script>
+
+<script>
+    document.getElementById('deleteFile').addEventListener('click', function() {
+        if (confirm('Bạn có chắc chắn muốn xóa file này?')) {
+            window.location.href = '/course/delete-file?id=<?php echo $this->courses['id']; ?>';
+        }
+    });
+</script>

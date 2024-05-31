@@ -1,0 +1,106 @@
+<div class="container">
+<form action="/course/list">
+    <h1>Danh sách khóa học</h1> <a href="/course/create/" class="btn btn-success">Create</a>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Content</th>
+          <th>Begin day</th>
+          <th>End day</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($this->courses as $key => $value) { ?>
+          <tr>
+            <td><?php echo $key + 1; ?> </td>
+            <td> <?php echo $value['name']; ?></td>
+            <td>
+              <?php
+              $value['content'];
+              $length = strlen($value['content']);
+              $limit = 30;
+              if ($length > $limit) {
+                $newvalue = substr($value['content'], 0, $limit) . "[...]";
+                echo $newvalue;
+              } else {
+                echo $value['content'];
+              }
+              ?>
+            </td>
+            <td>
+              <?php
+              $value["start_date"];
+              $date = date("d-m-Y", strtotime($value["start_date"]));
+              echo $date;
+              ?>
+            </td>
+            <td>
+              <?php
+              $value["end_date"];
+              $date = date("d-m-Y", strtotime($value["end_date"]));
+              echo $date;
+              ?>
+            </td>
+            <td><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                Action
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/course/create?id=<?php echo $value['id'] ?>">Edit</a>
+                <a role="button" class="dropdown-item btn_delete" href="/course/delete?id=<?php echo $value['id'] ?>"
+                                attr-id="<?php echo $value['id']; ?>"
+                                attr-name="<?php echo $value['name']; ?>" 
+                                attr-start="<?php echo $value['start_date']; ?>"
+                                attr-end="<?php echo $value['end_date']; ?>">Delete</a>
+                <a class="dropdown-item" href="/course/question?id=<?php echo $value['id'] ?>">Create Question</a>
+                <a class="dropdown-item" href="/course/staff?id=<?php echo $value['id'] ?>">Add Staff</a>
+            </td>
+          <?php } ?>
+</form>
+
+
+    <!-- Modal -->
+    <form id="deleteForm" action="/course/delete" method="post">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete <b id="get_name"></b> from <b id="get_start"></b> to <b id="get_end"></b>?
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="id" id="get_id" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".btn_delete").click(function() {
+                var _Self = $(this);
+                var id = _Self.attr("attr-id");
+                var name = _Self.attr("attr-name");
+                var start = _Self.attr("attr-start");
+                var end = _Self.attr("attr-end");
+                $('#get_name').text(name);
+                $('#get_start').text(start);
+                $('#get_end').text(end);
+                $('#get_id').val(id);
+                $('#myModal').modal('show');
+            });
+        });
+    </script>
+</div>

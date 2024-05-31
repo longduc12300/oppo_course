@@ -1,0 +1,12 @@
+<div class="container">
+    <h1>Danh sách câu hỏi</h1>
+    <?php if (!empty($this->questions)): ?>
+        <ul>
+            <?php foreach ($this->questions as $question): ?>
+                <li><?php echo $this->escape($question['question_text']); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p>Không có câu hỏi nào.</p>
+    <?php endif; ?>
+</div>
