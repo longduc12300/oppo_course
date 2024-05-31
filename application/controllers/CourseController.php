@@ -161,14 +161,14 @@ class CourseController extends Zend_Controller_Action
             $courses = $Courses->fetchRow($where)->toArray();
             $this->view->courses = $courses;
 
-        
+
 
 
             $CourseQuestion = new Application_Model_DbTable_CourseQuestion();
             $courseQuestionIds = $CourseQuestion->getIdsByCourseId($id);
             $this->view->courseQuestionIds = $courseQuestionIds;
         }
-   
+
 
         $courseId = $this->getRequest()->getParam('id');
         $Answers = new Application_Model_DbTable_Answers();
@@ -184,8 +184,8 @@ class CourseController extends Zend_Controller_Action
         $this->view->questionsAndAnswers = $data;
 
 
-    
-}
+
+    }
 
     public function questionSaveAction()
     {
@@ -199,17 +199,18 @@ class CourseController extends Zend_Controller_Action
             $answers = $this->getRequest()->getParam('answer');
             $correctAnswers = $this->getRequest()->getParam('correct');
 
-            
+
 
             $CourseQuestion = new Application_Model_DbTable_CourseQuestion();
             $AnswersModel = new Application_Model_DbTable_Answers();
 
 
-            $currentQuestionIds = $CourseQuestion->getIdsByCourseId($course_id);
-            $AnswersModel->deleteByQuestionIds($currentQuestionIds);
-    
+            $currentQuestionIds = $CourseQuestion->getQuestionIdsByCourseId($course_id);
 
-            $CourseQuestion->deleteByCourseId($course_id);
+            if (!empty($currentQuestionIds)) {
+                $AnswersModel->deleteByQuestionIds($currentQuestionIds);
+                $CourseQuestion->deleteByCourseId($course_id);
+            }
 
 
             foreach ($question as $index => $question_text) {
@@ -218,7 +219,7 @@ class CourseController extends Zend_Controller_Action
                     'question' => $question_text
                 );
                 $id = $CourseQuestion->insert($data);
-                
+
 
                 $answerData = array();
                 foreach ($answers[$index] as $answerIndex => $answer_text) {
@@ -252,11 +253,11 @@ class CourseController extends Zend_Controller_Action
 
     public function staffAction()
     {
-        $code       = $this->getRequest()->getParam('code', null);
-        $name       = $this->getRequest()->getParam('name', null);
+        $code = $this->getRequest()->getParam('code', null);
+        $name = $this->getRequest()->getParam('name', null);
         $department = $this->getRequest()->getParam('department', null);
-        $team1      = $this->getRequest()->getParam('team', null);
-        $title      = $this->getRequest()->getParam('title', null);
+        $team1 = $this->getRequest()->getParam('team', null);
+        $title = $this->getRequest()->getParam('title', null);
 
 
         $QTeam = new Application_Model_DbTable_Team();
@@ -365,6 +366,8 @@ class CourseController extends Zend_Controller_Action
         $title = $this->getRequest()->getParam('title', '');
 
 
+
+
         $Courses = new Application_Model_DbTable_Courses();
 
         try {
@@ -428,18 +431,5 @@ class CourseController extends Zend_Controller_Action
     // }
 
 
-    public function answerAction() {
-        $questionId = $this->getRequest()->getParam('question_id');
-        
-        if (!$questionId) {
-            return $this->_redirect('/course');
-        }
-        $courseAnswers = new Application_Model_DbTable_Answers();
 
-        // Giả sử bạn có một model để lấy câu hỏi từ cơ sở dữ liệu
-        $answers = $this->$courseAnswers->getQuestionsByQuestionId($questionId);
-    
-        // Gửi dữ liệu tới view
-        $this->view->answers = $answers;
-    }
 }
