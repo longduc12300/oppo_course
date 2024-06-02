@@ -150,4 +150,22 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract
         $this->update(['file' => null], 'id = ' . (int)$id);
     }
 
+    public function getTotalCourses()
+    {
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $select = $this->$db->select()
+                                 ->from($this->$db, 'COUNT(*) AS total');
+        $result = $this->$db->fetchRow($select);
+        return $result->total;
+    }
+
+    public function getCourse($limit, $offset)
+    {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $select = $this->$db->select()
+                                 ->limit($limit, $offset);
+        return $this->$db->fetchAll($select)->toArray();
+    }
+
 }

@@ -118,17 +118,24 @@ class CourseController extends Zend_Controller_Action
     {
         try {
             $coursesModel = new Application_Model_DbTable_Courses();
-
-
-            $courses = $coursesModel->fetchAll();
-
-
+    
+            $page = $this->getRequest()->getParam('page', 1);
+            $limit = 5; 
+            $offset = ($page - 1) * $limit;
+            $totalCourses = $coursesModel->fetchAll()->count();
+            $select = $coursesModel->select()
+                                   ->limit($limit, $offset);
+            $courses = $coursesModel->fetchAll($select);
+            $totalPages = ceil($totalCourses / $limit);
+    
             $this->view->courses = $courses;
-
+            $this->view->currentPage = $page;
+            $this->view->totalPages = $totalPages;
         } catch (Exception $e) {
-            // Handle exceptions if needed
+            $this->view->errorMessage = $e->getMessage();
         }
     }
+    
 
     public function deleteAction()
     {
@@ -208,7 +215,9 @@ class CourseController extends Zend_Controller_Action
             $currentQuestionIds = $CourseQuestion->getQuestionIdsByCourseId($course_id);
 
             if (!empty($currentQuestionIds)) {
-                $AnswersModel->deleteByQuestionIds($currentQuestionIds);
+                $where = $AnswersModel->getAdapter()->quoteInto('question_id IN (?)', $currentQuestionIds);
+                $AnswersModel->delete($where);
+
                 $CourseQuestion->deleteByCourseId($course_id);
             }
 
@@ -428,7 +437,7 @@ class CourseController extends Zend_Controller_Action
     //         $this->view->answers = $answers;
     //     } catch (Exception $e) {
     //     }
-    // }
+    // 
 
 
 
