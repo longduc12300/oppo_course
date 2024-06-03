@@ -438,7 +438,48 @@ class CourseController extends Zend_Controller_Action
     //     } catch (Exception $e) {
     //     }
     // 
-
+    public function excelAction()
+    {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+    
+        $coursesModel = new Application_Model_DbTable_Courses();
+        $courses = $coursesModel->fetchAll();
+    
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+    
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Name');
+        $sheet->setCellValue('C1', 'Content');
+        $sheet->setCellValue('D1', 'Start Date');
+        $sheet->setCellValue('E1', 'End Date');
+    
+        $row = 2;
+        foreach ($courses as $course) {
+            $sheet->setCellValue('A' . $row, $course->id);
+            $sheet->setCellValue('B' . $row, $course->name);
+            $sheet->setCellValue('C' . $row, $course->content);
+            $sheet->setCellValue('D' . $row, $course->start_date);
+            $sheet->setCellValue('E' . $row, $course->end_date);
+            $row++;
+        }
+    
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'courses_' . date('Y-m-d_H-i-s') . '.xlsx';
+    
+        // Clean output buffer to prevent corrupted files
+        if (ob_get_contents()) {
+            ob_end_clean();
+        }
+    
+        // Redirect output to client browser
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        $writer->save('php://output');
+        exit;
+    }
 
 
 }
