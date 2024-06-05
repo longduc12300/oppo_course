@@ -481,5 +481,11 @@ class CourseController extends Zend_Controller_Action
         exit;
     }
 
+    public function answerAction()
+    {
+        $answerModel = new Application_Model_DbTable_Answers();
+        $answers = $answerModel->fetchAll();
+        $this->view->answers = $answers;
+    }
 
 }

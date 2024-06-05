@@ -1,0 +1,24 @@
+<div class="container">
+    <h1>Danh sách câu hỏi</h1>
+    <?php 
+        // Tạo một mảng để nhóm các câu hỏi theo question_id
+        $groupedQuestions = [];
+        foreach ($this->answers as $value) {
+            $questionId = $value['question_id'];
+            if (!isset($groupedQuestions[$questionId])) {
+                $groupedQuestions[$questionId] = [];
+            }
+            $groupedQuestions[$questionId][] = $value;
+        }
+
+        // Duyệt qua các nhóm câu hỏi và hiển thị chúng
+        foreach ($groupedQuestions as $questionId => $answers): ?>
+            <h3>Câu hỏi ID: <?= $questionId; ?></h3>
+            <ul class="list-group list-group-flush">
+                <?php foreach ($answers as $value): ?>
+                    <li class="list-group-item">Câu trả lời: <?= $value['answer_text']; ?></li>
+                    <li class="list-group-item">Đúng(1)/Sai(0): <?= $value['is_correct']; ?></li>
+                <?php endforeach; ?>
+            </ul>
+    <?php endforeach; ?>
+</div>
