@@ -5,17 +5,19 @@ class CourseController extends Zend_Controller_Action
 
     public function init()
     {
-        /* Initialize action controller here */
-
+        $userStorage = Zend_Auth::getInstance()->getStorage()->read();
+        if(empty($userStorage)){
+            $this->_helper->redirector('index', 'auth');
+        }
     }
 
 
     public function indexAction()
     {
-        $course = new Application_Model_DbTable_Courses();
-        $course = $course->fetchAll();
+
 
     }
+
 
     // view, insert
     public function createAction()
@@ -118,16 +120,16 @@ class CourseController extends Zend_Controller_Action
     {
         try {
             $coursesModel = new Application_Model_DbTable_Courses();
-    
+
             $page = $this->getRequest()->getParam('page', 1);
-            $limit = 5; 
+            $limit = 5;
             $offset = ($page - 1) * $limit;
             $totalCourses = $coursesModel->fetchAll()->count();
             $select = $coursesModel->select()
-                                   ->limit($limit, $offset);
+                ->limit($limit, $offset);
             $courses = $coursesModel->fetchAll($select);
             $totalPages = ceil($totalCourses / $limit);
-    
+
             $this->view->courses = $courses;
             $this->view->currentPage = $page;
             $this->view->totalPages = $totalPages;
@@ -135,7 +137,7 @@ class CourseController extends Zend_Controller_Action
             $this->view->errorMessage = $e->getMessage();
         }
     }
-    
+
 
     public function deleteAction()
     {
@@ -441,19 +443,19 @@ class CourseController extends Zend_Controller_Action
     public function excelAction()
     {
         require_once __DIR__ . '/../../vendor/autoload.php';
-    
+
         $coursesModel = new Application_Model_DbTable_Courses();
         $courses = $coursesModel->fetchAll();
-    
+
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-    
+
         $sheet->setCellValue('A1', 'ID');
         $sheet->setCellValue('B1', 'Name');
         $sheet->setCellValue('C1', 'Content');
         $sheet->setCellValue('D1', 'Start Date');
         $sheet->setCellValue('E1', 'End Date');
-    
+
         $row = 2;
         foreach ($courses as $course) {
             $sheet->setCellValue('A' . $row, $course->id);
@@ -463,20 +465,20 @@ class CourseController extends Zend_Controller_Action
             $sheet->setCellValue('E' . $row, $course->end_date);
             $row++;
         }
-    
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $filename = 'courses_' . date('Y-m-d_H-i-s') . '.xlsx';
-    
+
         // Clean output buffer to prevent corrupted files
         if (ob_get_contents()) {
             ob_end_clean();
         }
-    
+
         // Redirect output to client browser
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-        
+
         $writer->save('php://output');
         exit;
     }

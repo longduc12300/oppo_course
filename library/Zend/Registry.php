@@ -201,9 +201,9 @@ class Zend_Registry extends ArrayObject
      *
      * Workaround for http://bugs.php.net/bug.php?id=40442 (ZF-960).
      */
-    public function offsetExists($index)
-    {
-        return array_key_exists($index, $this);
-    }
-
+    // public function offsetExists($index)
+    // {
+    //     if (isset($this->_registry[$index])) {
+    //     }
+    // }
 }
