@@ -28,12 +28,10 @@ class AuthController extends Zend_Controller_Action
                 throw new Exception("sai ten dang nhap");
                 // if ($form->isValid($request->getPost())) {
 // if ($this->_process($form->getValues())) {
-// We're authenticated! Redirect to the home page
             } catch (Exception $e) {
                 exit($e->getMessage());
             }
-            // }
-            // }
+           
         }
         // $this->view->form = $form;
     }

@@ -3,7 +3,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract
 {
     protected $_name = 'courses';
 
-    public function addCourse( $name, $content, $start_date, $end_date, $file)
+    public function addCourse( $name, $content, $start_date, $end_date, $file, $created_by)
     {
         $data = array(
             'name'=> $name,
@@ -11,7 +11,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract
             'start_date'=> $start_date,
             'end_date'=> $end_date,
             'file'=> $file,
-
+            'created_by' => $created_by,
         );
         $this->insert($data);
     }

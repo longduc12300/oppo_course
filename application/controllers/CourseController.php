@@ -6,7 +6,7 @@ class CourseController extends Zend_Controller_Action
     public function init()
     {
         $userStorage = Zend_Auth::getInstance()->getStorage()->read();
-        if(empty($userStorage)){
+        if (empty($userStorage)) {
             $this->_helper->redirector('index', 'auth');
         }
     }
@@ -51,14 +51,21 @@ class CourseController extends Zend_Controller_Action
             if (!$end_date)
                 throw new Exception("chưa có ngày kết thúc");
 
-
+            $auth = Zend_Auth::getInstance();
+            if (!$auth->hasIdentity()) {
+                throw new Exception("Người dùng chưa đăng nhập");
+            }
+            $user = $auth->getIdentity();
+            $created_by = $user->id;
+            
             $courses = new Application_Model_DbTable_Courses();
 
             $data = array(
                 'name' => $name,
                 'content' => $content,
                 'start_date' => $start_date,
-                'end_date' => $end_date
+                'end_date' => $end_date,
+                'created_by' => $created_by
                 // 'file'       => $myuiq
             );
 
