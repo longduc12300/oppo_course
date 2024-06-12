@@ -1,0 +1,28 @@
+<div class="container mt-5">
+    <h1>Results</h1>
+    <?php if (isset($this->results) && !empty($this->results)): ?>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Your Answer</th>
+                    <th>Correct Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($this->results as $result): ?>
+                    <tr>
+                        <td><?php echo $result['question']['question']; ?></td>
+                        <td><?php echo $result['user_answer']['answer_text']; ?></td>
+                        <td><?php echo $result['correct_answer']; ?></td>
+                        <td><?php echo $result['is_correct'] ? 'Correct' : 'Incorrect'; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p>No answers found.</p>
+    <?php endif; ?>
+    <a href="/course/thank-you" class="btn btn-primary">Tiếp tục</a>
+</div>

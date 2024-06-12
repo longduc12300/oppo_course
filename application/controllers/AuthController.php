@@ -23,7 +23,7 @@ class AuthController extends Zend_Controller_Action
                 $result = $QAccount->fetchRow($Where);
                 if (!empty($result)) {
                     $userStorage = Zend_Auth::getInstance()->getStorage()->write($result);
-                    $this->_helper->redirector('list', 'course');
+                    $this->_helper->redirector('welcome', 'course');
                 }
                 throw new Exception("sai ten dang nhap");
                 // if ($form->isValid($request->getPost())) {

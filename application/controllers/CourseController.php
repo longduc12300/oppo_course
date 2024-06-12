@@ -14,10 +14,76 @@ class CourseController extends Zend_Controller_Action
 
     public function indexAction()
     {
-
+    
 
     }
 
+    public function welcomeAction()
+    {
+        $questionModel = new Application_Model_DbTable_ModelQuestion();
+        $this->view->questions = $questionModel->getRandomQuestions(3);
+    }
+
+    public function submitAnswersAction()
+    {
+        $auth = Zend_Auth::getInstance();
+        if (!$auth->hasIdentity()) {
+            $this->_helper->redirector('index', 'auth');
+        }
+        $user = $auth->getIdentity();
+        $staff_id = $user->id;
+    
+        $answers = $this->getRequest()->getParam('answer', []);
+        $questionModel = new Application_Model_DbTable_CourseQuestion();
+        $answerModel = new Application_Model_DbTable_Answers();
+        $userAnswerModel = new Application_Model_DbTable_ModelQuestion();
+    
+        $results = [];
+        try {
+            foreach ($answers as $question_id => $answer_id) {
+                // Save the user's answer
+                $data = [
+                    'staff_id' => $staff_id,
+                    'question_id' => $question_id,
+                    'answer_id' => $answer_id,
+                ];
+                $userAnswerModel->insert($data);
+    
+                // Get the correct answer for the question
+                $correctAnswer = $answerModel->fetchRow([
+                    'question_id = ?' => $question_id,
+                    'is_correct = ?' => 1,
+                ])->toArray();
+
+                $where = $questionModel->getAdapter()->quoteInto('id = ? ',$question_id);
+                $question = $questionModel->fetchRow($where)->toArray();
+                
+                $where = $answerModel->getAdapter()->quoteInto('id = ? ',$answer_id);
+                $answer = $answerModel->fetchRow($where)->toArray();
+
+
+                $isCorrect = $correctAnswer['id'] == $answer_id;
+                $results[$question_id] = [
+                    'question' => $question,
+                    'user_answer' => $answer,
+                    'correct_answer' => $correctAnswer['answer_text'],
+                    'is_correct' => $isCorrect,
+                    ];
+                    }
+
+            $this->view->results = $results;
+        } catch (Exception $e) {
+            $this->view->error = 'Error: ' . $e->getMessage();
+        }
+    
+        // Render the results view
+        $this->_helper->viewRenderer('results');
+    }
+
+
+    public function thankYouAction()
+    {
+    }
 
     // view, insert
     public function createAction()
@@ -125,24 +191,7 @@ class CourseController extends Zend_Controller_Action
     }
     public function listAction()
     {
-        try {
-            $coursesModel = new Application_Model_DbTable_Courses();
-
-            $page = $this->getRequest()->getParam('page', 1);
-            $limit = 5;
-            $offset = ($page - 1) * $limit;
-            $totalCourses = $coursesModel->fetchAll()->count();
-            $select = $coursesModel->select()
-                ->limit($limit, $offset);
-            $courses = $coursesModel->fetchAll($select);
-            $totalPages = ceil($totalCourses / $limit);
-
-            $this->view->courses = $courses;
-            $this->view->currentPage = $page;
-            $this->view->totalPages = $totalPages;
-        } catch (Exception $e) {
-            $this->view->errorMessage = $e->getMessage();
-        }
+        require_once 'course' . DIRECTORY_SEPARATOR .'list.php';
     }
 
 
@@ -271,11 +320,11 @@ class CourseController extends Zend_Controller_Action
 
     public function staffAction()
     {
-        $code = $this->getRequest()->getParam('code', null);
-        $name = $this->getRequest()->getParam('name', null);
+        $code       = $this->getRequest()->getParam('code', null);
+        $name       = $this->getRequest()->getParam('name', null);
         $department = $this->getRequest()->getParam('department', null);
-        $team1 = $this->getRequest()->getParam('team', null);
-        $title = $this->getRequest()->getParam('title', null);
+        $team1      = $this->getRequest()->getParam('team', null);
+        $title      = $this->getRequest()->getParam('title', null);
 
 
         $QTeam = new Application_Model_DbTable_Team();
@@ -491,10 +540,15 @@ class CourseController extends Zend_Controller_Action
     }
 
     public function answerAction()
-    {
+    {    
+        
         $answerModel = new Application_Model_DbTable_Answers();
+       
+        // $answerModel->getAdapter()->quoteInto('id = ?', $id);
         $answers = $answerModel->fetchAll();
         $this->view->answers = $answers;
+        echo '<pre>'; var_dump($answers);exit;
+    
     }
 
 }
